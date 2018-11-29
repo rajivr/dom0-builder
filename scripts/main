@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# This helps to see what is going on
+set -e -x
+
+apk update
+
+cd /home/builder/src/dom0-builder-qemu_aarch64/scripts
+
+mkdir /tmp/output-dom0-builder-qemu_aarch64
+
+./mkimage.sh \
+  --tag qemu_aarch64 \
+  --outdir /tmp/output-dom0-builder-qemu_aarch64 \
+  --arch aarch64 \
+  --repository http://dl-cdn.alpinelinux.org/alpine/v3.7/main \
+  --extra-repository '@apkrepo-dom0-qemu_aarch64 /home/builder/apkrepo/dom0-qemu_aarch64/v3.7/main' \
+  --profile qemu_aarch64
+
+# Move /tmp/output-dom0-builder-qemu_aarch64 to `scripts/` directory to prepare
+# for `Dockerfile.package`.
+rm -rf ./output-dom0-builder-qemu_aarch64
+
+mv /tmp/output-dom0-builder-qemu_aarch64 .

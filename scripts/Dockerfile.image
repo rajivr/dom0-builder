@@ -1,0 +1,82 @@
+FROM viryaos/apkrepo-dom0-qemu_aarch64:v3.7-b700f25-aarch64 AS apkrepo-dom0-qemu_aarch64
+
+FROM arm64v8/alpine:3.7
+
+# TODO: This needs to be moved into a container
+COPY ./viryaos-xen.tar.gz /home/builder/viryaos-xen.tar.gz
+COPY ./viryaos-rkt.tar.gz /home/builder/viryaos-rkt.tar.gz
+
+COPY [ \
+  "./docker-extras/*", \
+  "/tmp/docker-build/" \
+]
+
+COPY [ \
+  "qemu-aarch64", \
+  "/usr/bin/qemu-aarch64" \
+]
+
+COPY --from=apkrepo-dom0-qemu_aarch64 /home/builder/apkrepo/dom0-qemu_aarch64/ /home/builder/apkrepo/dom0-qemu_aarch64/
+
+RUN \
+  # Add root to abuild group. This is required because we cannot su into user
+  # builder.
+  addgroup root abuild && \
+  # apk
+  apk update && \
+  \
+  apk add \
+    abuild \
+    alpine-baselayout \
+    alpine-conf \
+    device-mapper \
+    dosfstools \
+    e2fsprogs \
+    gcc \
+    mkinitfs \
+    mtools \
+    multipath-tools \
+    sgdisk \
+    squashfs-tools \
+    sudo \
+    util-linux \
+    vim  && \
+  \
+  mkdir -p /var/cache/distfiles && \
+  adduser -D -u 500 builder && \
+  addgroup builder abuild && \
+  chgrp abuild /var/cache/distfiles && \
+  chmod g+w /var/cache/distfiles && \
+  echo "builder    ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+  su -l builder -c "mkdir .abuild" && \
+  su -l builder -c "cp /tmp/docker-build/home-builder-.abuild-Builder-59ffc9b9.rsa.pub .abuild/Builder-59ffc9b9.rsa.pub" && \
+  cp /usr/share/apk/keys/aarch64/alpine-devel*.rsa.pub /etc/apk/keys/ && \
+  cp /home/builder/.abuild/*.rsa.pub /etc/apk/keys && \
+  \
+  # Apply patches to /usr/share/mkinitfs/initramfs-init and /sbin/update-kernel
+  cd /usr/share/mkinitfs && \
+  patch -p1 < /tmp/docker-build/initramfs-init-add-viryaos.patch && \
+  cd /sbin && \
+  patch -p1 < /tmp/docker-build/update-kernel-add-viryaos.patch && \
+  \
+  # mtools
+  echo "mtools_skip_check=1" >> /etc/mtools.conf && \
+  \
+  # install shadow package in the docker container, to prevent "qemu-user"
+  # groupadd and useradd double chroot crash.
+  echo "@apkrepo-dom0-qemu_aarch64 /home/builder/apkrepo/dom0-qemu_aarch64/v3.7/main" >> /etc/apk/repositories && \
+  apk update && \
+  apk add shadow@apkrepo-dom0-qemu_aarch64 && \
+  \
+  # remove @apkrepo-dom0-qemu_aarch64 from apk
+  sed -i -e 's/@apkrepo-dom0-qemu_aarch64//' /etc/apk/world && \
+  sed -i -e '/@apkrepo-dom0-qemu_aarch64/d' /etc/apk/repositories && \
+  \
+  # Copy vos_run file
+  cp /tmp/docker-build/vos_run /vos_run && \
+  chmod 755 /vos_run && \
+  \
+  # cleanup
+  cd /root && \
+  rm -rf /tmp/* && \
+  rm -f /var/cache/apk/*

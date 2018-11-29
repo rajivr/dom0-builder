@@ -1,0 +1,104 @@
+initramfs-init: Add ViryaOS support
+
+From: Rajiv Ranganath <rajiv.ranganath@atihita.com>
+
+Signed-off-by: Rajiv Ranganath <rajiv.ranganath@atihita.com>
+---
+ initramfs-init |   70 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 69 insertions(+), 1 deletion(-)
+
+diff --git a/initramfs-init b/initramfs-init
+index 2c2d77e..db1da36 100755
+--- a/initramfs-init
++++ b/initramfs-init
+@@ -21,6 +21,10 @@ export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+ mount -t proc -o noexec,nosuid,nodev proc /proc
+ mount -t sysfs -o noexec,nosuid,nodev sysfs /sys
+ 
++# ViryaOS: Enable when required to debug initramfs
++# echo "Bailing out..."
++# exec /bin/busybox sh
++
+ # some helpers
+ ebegin() {
+ 	last_emsg="$*"
+@@ -269,7 +273,7 @@ set -- $(cat /proc/cmdline)
+ myopts="alpine_dev autodetect autoraid chart cryptroot cryptdm cryptheader cryptoffset
+ 	cryptdiscards debug_init dma init_args keep_apk_new modules ovl_dev pkgs quiet
+ 	root_size root usbdelay ip alpine_repo apkovl alpine_start splash blacklist
+-	overlaytmpfs rootfstype rootflags nbd resume"
++	overlaytmpfs rootfstype rootflags nbd resume rootfs_cpio"
+ 
+ for opt; do
+ 	case "$opt" in
+@@ -357,6 +361,70 @@ if [ -f /etc/modules ] ; then
+ fi
+ eend 0
+ 
++# ViryaOS: QEMU_AARCH64 DOM-0 support
++if [ -n "$KOPT_rootfs_cpio" ]; then
++	if [ "$SINGLEMODE" = "yes" ]; then
++		echo "Entering single mode. Type 'exit' to continue booting."
++		sh
++	fi
++
++	ebegin "Mounting rootfs and modloop"
++
++	# NOTE: `/dev/vda2` is hotplugged, so the `/dev` entry already exists.
++	# So, we skip running
++	# ```
++	# nlplug-findfs -p /sbin/mdev ${KOPT_debug_init:+-d} vda2
++	# ```
++
++	# mount ext4 sysroot
++	rootflags="rw,noatime,data=ordered"
++	mount -t ext4 -o $rootflags /dev/vda2 $sysroot
++
++	mount -t vfat -o ro /dev/vda1 /media/floppy
++
++	cp /media/floppy/modloop-*.aarch64-qemu_aarch64-dom0 /
++	# `/.modloop/` directory is already present, so we don't have to create
++	# it
++	mount /modloop-*.aarch64-qemu_aarch64-dom0 -o loop,ro /.modloop/
++
++	# NOTE: symbolic link is created to "/.modloop/modules"
++	rm -rf /sysroot/lib/modules && ln -sf /.modloop/modules /sysroot/lib/
++
++	umount /media/floppy/
++
++	eend $?
++
++	# setup bootchart for switch_root
++	chart_init=""
++	if [ "$KOPT_chart" = yes ]; then
++		/sbin/bootchartd stop-initfs "$sysroot"
++		chart_init="/sbin/bootchartd start-rootfs"
++	fi
++
++	if [ ! -x $sysroot/sbin/init ]; then
++		[ "$KOPT_splash" != "no" ] && echo exit > $sysroot/$splashfile
++		echo "/sbin/init not found in new root. Launching emergency recovery shell"
++		echo "Type exit to continue boot."
++		/bin/busybox sh
++	fi
++
++	# switch over to new root
++	cat /proc/mounts | while read DEV DIR TYPE OPTS ; do
++		if [ "$DIR" != "/" -a "$DIR" != "$sysroot" -a -d "$DIR" ]; then
++			mkdir -p $sysroot/$DIR
++			mount -o move $DIR $sysroot/$DIR
++		fi
++	done
++	sync
++
++	echo ""
++	exec /bin/busybox switch_root $sysroot $chart_init /sbin/init $KOPT_init_args
++
++	echo "initramfs emergency recovery shell launched"
++	exec /bin/busybox sh
++	reboot
++fi
++
+ if [ -n "$KOPT_cryptroot" ]; then
+ 	cryptopts="-c ${KOPT_cryptroot}"
+ 	if [ "$KOPT_cryptdiscards" = "yes" ]; then
