@@ -58,6 +58,8 @@ apk_pkgs="
 	jq
 	busybox-static
 	ca-certificates
+
+	grub-efi
 	"
 apks=""
 for i in $apk_pkgs; do
