@@ -9,7 +9,7 @@ profile_qemu_aarch64() {
 	# --extra-repository '@apkrepo-dom0-qemu_aarch64 ...' in `README.md`
 	kernel_flavors_repo="@apkrepo-dom0-qemu_aarch64"
 
-	kernel_cmdline="console=ttyS0"
+	kernel_cmdline="console=hvc0 modules=loop,squashfs rootfs_cpio"
 
 	initfs_features="ata base bootchart cdrom squashfs ext2 ext3 ext4 scsi"
 	initfs_cmdline="modules=loop,squashfs rootfs_cpio"
@@ -56,10 +56,12 @@ viryaos_grub_gen_config() {
 		insmod part_gpt
 		insmod ext2
 
-		set root=(hd0,gpt2)
+        set root=(hd2,gpt2)
 
-		linux   /vmlinuz-$_fullkver $initfs_cmdline $kernel_cmdline
-		initrd  /initramfs-$_fullkver
+        xen_hypervisor /boot/xen.gz placeholder dom0_mem=1G
+        xen_module     /boot/vmlinuz-$_fullkver $initfs_cmdline $kernel_cmdline
+        xen_module     /boot/initramfs-$_fullkver
+        devicetree     /boot/viryaos.dtb
 	}
 	EOF
 }
