@@ -8,7 +8,7 @@ emulation.
 ```
 $ cd dom0-builder-qemu_aarch64/scripts/
 
-$ docker build --force-rm --network=host --file Dockerfile.image -t dom0-builder-qemu_aarch64 .
+$ docker build --force-rm --squash --file Dockerfile.image -t dom0-builder-qemu_aarch64 .
 ```
 
 ## `/vos_run`
@@ -16,7 +16,7 @@ $ docker build --force-rm --network=host --file Dockerfile.image -t dom0-builder
 Go to the directory containing `ViryaOS` tree.
 
 ```
-$ docker run --rm --network=host --privileged=true -ti -v $(pwd):/home/builder/src -v /tmp:/tmp \
+$ docker run --rm --privileged=true -ti -v $(pwd):/home/builder/src -v /tmp:/tmp \
     dom0-builder-qemu_aarch64 /vos_run
 ```
 
@@ -25,5 +25,5 @@ $ docker run --rm --network=host --privileged=true -ti -v $(pwd):/home/builder/s
 ```
 $ cd dom0-builder-qemu_aarch64/scripts/
 
-$ docker build --force-rm --network=host --file Dockerfile.package -t dom0-builder-qemu_aarch64-package .
+$ docker build --force-rm --file Dockerfile.package -t dom0-builder-qemu_aarch64-package .
 ```

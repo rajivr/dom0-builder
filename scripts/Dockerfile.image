@@ -5,7 +5,6 @@ FROM arm64v8/alpine:3.7
 # TODO: This needs to be moved into a container
 COPY ./viryaos-xen.tar.gz /home/builder/viryaos-xen.tar.gz
 COPY ./viryaos-rkt.tar.gz /home/builder/viryaos-rkt.tar.gz
-COPY ./viryaos-grub.tar.gz /home/builder/viryaos-grub.tar.gz
 
 COPY [ \
   "./docker-extras/*", \
@@ -13,8 +12,8 @@ COPY [ \
 ]
 
 COPY [ \
-  "./qemu-aarch64-static", \
-  "/usr/bin/qemu-aarch64-static" \
+  "./qemu-aarch64", \
+  "/usr/bin/qemu-aarch64" \
 ]
 
 COPY --from=apkrepo-dom0-qemu_aarch64 /home/builder/apkrepo/dom0-qemu_aarch64/ /home/builder/apkrepo/dom0-qemu_aarch64/

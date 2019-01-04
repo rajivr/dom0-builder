@@ -71,7 +71,7 @@ abuild-apk add --arch "$arch" --keys-dir "$keys_dir" --no-cache \
 	--root "$tmprootfs" --initdb
 
 mkdir -p "$tmprootfs/usr/bin"
-cp /usr/bin/qemu-aarch64-static "$tmprootfs/usr/bin"
+cp /usr/bin/qemu-aarch64 "$tmprootfs/usr/bin"
 
 
 # dbus post-install script requires /dev/urandom
@@ -94,9 +94,6 @@ sudo sh -c "cd $tmprootfs; tar xvzf /home/builder/viryaos-xen.tar.gz"
 
 # install rkt
 sudo sh -c "cd $tmprootfs; tar xvzf /home/builder/viryaos-rkt.tar.gz"
-
-# install grub
-sudo sh -c "mkdir -p $tmprootfs/usr/local; cd $tmprootfs/usr/local; tar xvzf /home/builder/viryaos-grub.tar.gz; cp -r viryaos-grub /usr/local;"
 
 # setup openrc
 runlevel_sysinit="
