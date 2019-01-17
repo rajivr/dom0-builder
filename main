@@ -5,7 +5,7 @@ set -e -x
 
 apk update
 
-cd /home/builder/src/dom0-builder-qemu_aarch64/scripts
+cd /home/builder/src/dom0-builder-qemu_aarch64
 
 mkdir /tmp/output-dom0-builder-qemu_aarch64
 
