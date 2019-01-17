@@ -6,7 +6,7 @@ You need `qemu-aarch64` binary to be present when using QEMU user-mode
 emulation.
 
 ```
-$ cd dom0-builder-qemu_aarch64/scripts/
+$ cd dom0-builder-qemu_aarch64/
 
 $ docker build --force-rm --squash --file Dockerfile.image -t dom0-builder-qemu_aarch64 .
 ```
