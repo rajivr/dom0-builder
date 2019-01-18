@@ -1,9 +1,10 @@
 FROM viryaos/apkrepo-dom0-qemu_aarch64:v3.7-b700f25-aarch64 AS apkrepo-dom0-qemu_aarch64
 
+FROM viryaos-xen-aarch64-package as viryaos-xen-aarch64-package
+
 FROM arm64v8/alpine:3.7
 
-# TODO: This needs to be moved into a container
-COPY ./viryaos-xen.tar.gz /home/builder/viryaos-xen.tar.gz
+# TODO: This needs to be removed
 COPY ./viryaos-rkt.tar.gz /home/builder/viryaos-rkt.tar.gz
 
 COPY [ \
@@ -80,3 +81,5 @@ RUN \
   cd /root && \
   rm -rf /tmp/* && \
   rm -f /var/cache/apk/*
+
+COPY --from=viryaos-xen-aarch64-package /home/builder/output-viryaos-xen-aarch64/ /home/builder/output-viryaos-xen-aarch64/
