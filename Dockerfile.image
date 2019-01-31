@@ -1,6 +1,6 @@
 FROM viryaos/apkrepo-dom0-qemu_aarch64:v3.7-b700f25-aarch64 AS apkrepo-dom0-qemu_aarch64
 
-FROM viryaos-xen-aarch64-package as viryaos-xen-aarch64-package
+FROM viryaos-xen-aarch64-package-tools as viryaos-xen-aarch64-package-tools
 
 FROM arm64v8/alpine:3.7
 
@@ -82,4 +82,4 @@ RUN \
   rm -rf /tmp/* && \
   rm -f /var/cache/apk/*
 
-COPY --from=viryaos-xen-aarch64-package /home/builder/output-viryaos-xen-aarch64/ /home/builder/output-viryaos-xen-aarch64/
+COPY --from=viryaos-xen-aarch64-package-tools /home/builder/output-viryaos-xen-tools-aarch64/ /home/builder/output-viryaos-xen-tools-aarch64/
