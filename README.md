@@ -23,7 +23,7 @@ $ docker run --rm --privileged=true -ti -v $(pwd):/home/builder/src -v /tmp:/tmp
 ## `Dockerfile.package`
 
 ```
-$ cd dom0-builder-qemu_aarch64/scripts/
+$ cd dom0-builder-qemu_aarch64/
 
 $ docker build --force-rm --file Dockerfile.package -t dom0-builder-qemu_aarch64-package .
 ```
