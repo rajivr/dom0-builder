@@ -21,7 +21,7 @@ create_image_qemu_aarch64_img() {
 	set -e
 
 	# Set the CONTAINER_OUTPUT directory
-	local CONTAINER_OUTPUT="/tmp/output-dom0-builder-qemu_aarch64/"
+	local CONTAINER_OUTPUT="/tmp/output-dom0-builder/"
 
 	local _vmlinuz=$(basename ${WORKDIR}/kernel_*/boot/vmlinuz-*)
 	local _fullkver=${_vmlinuz#vmlinuz-}

@@ -1,6 +1,6 @@
 FROM busybox:musl
 
 COPY [ \
-  "./output-dom0-builder-qemu_aarch64/*", \
-  "/home/builder/output-dom0-builder-qemu_aarch64/" \
+  "./output-dom0-builder/*", \
+  "/home/builder/output-dom0-builder/" \
 ]

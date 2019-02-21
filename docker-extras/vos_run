@@ -2,4 +2,4 @@
 
 set -e -x
 
-/home/builder/src/dom0-builder-qemu_aarch64/main
+/home/builder/src/dom0-builder/main
