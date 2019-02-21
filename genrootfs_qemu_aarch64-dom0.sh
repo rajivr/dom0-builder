@@ -90,7 +90,7 @@ sudo rm -f  "$tmprootfs/dev/urandom"
 # ERROR: alpine-baselayout-3.0.5-r2: failed to rename var/.apk.f752bb51c942c7b3b4e0cf24875e21be9cdcd4595d8db384 to var/run.
 # ```
 # install xen
-sudo sh -c "cd $tmprootfs; tar xvzf /home/builder/output-viryaos-xen-tools-aarch64/viryaos-xen-tools.tar.gz"
+sudo sh -c "cd $tmprootfs; tar xvzf /home/builder/output-viryaos-xen-tools/viryaos-xen-tools.tar.gz"
 
 # install rkt
 sudo sh -c "cd $tmprootfs; tar xvzf /home/builder/viryaos-rkt.tar.gz"
