@@ -72,6 +72,7 @@ abuild-apk add --arch "$arch" --keys-dir "$keys_dir" --no-cache \
 
 mkdir -p "$tmprootfs/usr/bin"
 cp /usr/bin/qemu-aarch64 "$tmprootfs/usr/bin"
+cp /usr/bin/qemu-aarch64-static "$tmprootfs/usr/bin"
 
 
 # dbus post-install script requires /dev/urandom
@@ -199,6 +200,7 @@ for i in $local_scripts; do
 done
 
 rm -f "$tmprootfs/usr/bin/qemu-aarch64"
+rm -f "$tmprootfs/usr/bin/qemu-aarch64-static"
 
 sudo sh -c "cd $tmprootfs; find . | cpio -H newc -o > $tmp/rootfs.cpio"
 
