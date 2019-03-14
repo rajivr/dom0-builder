@@ -1,8 +1,14 @@
+FROM viryaos/sdk-qemu-user-aarch64:v3.7-45f9eeb-x86_64 AS sdk-qemu-user-aarch64
+
 FROM viryaos/apkrepo-dom0-qemu_aarch64:v3.7-b700f25-aarch64 AS apkrepo-dom0-qemu_aarch64
 
 FROM viryaos-xen-package-tools as viryaos-xen-package-tools
 
 FROM arm64v8/alpine:3.7
+
+COPY --from=sdk-qemu-user-aarch64 /home/builder/sdk-qemu-user-aarch64/qemu-aarch64 /usr/bin/qemu-aarch64
+
+COPY --from=sdk-qemu-user-aarch64 /home/builder/sdk-qemu-user-aarch64/qemu-aarch64 /usr/bin/qemu-aarch64-static
 
 # TODO: This needs to be removed
 COPY ./viryaos-rkt.tar.gz /home/builder/viryaos-rkt.tar.gz
@@ -10,11 +16,6 @@ COPY ./viryaos-rkt.tar.gz /home/builder/viryaos-rkt.tar.gz
 COPY [ \
   "./docker-extras/*", \
   "/tmp/docker-build/" \
-]
-
-COPY [ \
-  "./qemu-aarch64", \
-  "/usr/bin/qemu-aarch64" \
 ]
 
 COPY --from=apkrepo-dom0-qemu_aarch64 /home/builder/apkrepo/dom0-qemu_aarch64/ /home/builder/apkrepo/dom0-qemu_aarch64/
